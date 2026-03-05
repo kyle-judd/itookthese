@@ -11,6 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -18,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class PhotoService {
   private final PhotoRepository photoRepository;
 
+  @Transactional(readOnly = true)
   public List<PhotoSummaryResponse> getAllPhotos(Long categoryId, Boolean isFeatured) {
     return photoRepository.findAll(PhotoSpecification.withFilters(categoryId, isFeatured)).stream()
         .map(
@@ -34,6 +36,7 @@ public class PhotoService {
         .toList();
   }
 
+  @Transactional(readOnly = true)
   public PhotoDetailResponse getPhotoById(Long id) {
     Photo photo =
         photoRepository
