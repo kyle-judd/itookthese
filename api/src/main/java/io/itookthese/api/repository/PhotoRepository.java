@@ -1,7 +1,6 @@
 package io.itookthese.api.repository;
 
 import io.itookthese.api.entity.Photo;
-import org.springframework.data.repository.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-interface PhotoRepository extends Repository<Photo, Long> {
-}
+public interface PhotoRepository extends JpaRepository<Photo, Long> {}

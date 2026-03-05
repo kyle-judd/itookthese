@@ -1,4 +1,4 @@
-package io.itookthese.api.entities;
+package io.itookthese.api.entity;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
@@ -26,14 +26,14 @@ public class Category {
 
   private String description;
 
-  @Column(name = "sort_order")
+  @Column(name = "sort_order", nullable = false)
   private Integer sortOrder;
 
-  @Column(name = "created_at")
+  @Column(name = "created_at", nullable = false)
   @CreationTimestamp
   private OffsetDateTime createdAt;
 
-  @Column(name = "updated_at")
+  @Column(name = "updated_at", nullable = false)
   @UpdateTimestamp
   private OffsetDateTime updatedAt;
 }

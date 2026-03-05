@@ -1,7 +1,6 @@
 package io.itookthese.api.repository;
 
 import io.itookthese.api.entity.SiteSetting;
-import org.springframework.data.repository.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-interface SiteSettingRepository extends Repository<SiteSetting, String> {
-}
+public interface SiteSettingRepository extends JpaRepository<SiteSetting, String> {}

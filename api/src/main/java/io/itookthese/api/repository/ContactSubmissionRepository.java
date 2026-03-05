@@ -1,7 +1,6 @@
 package io.itookthese.api.repository;
 
 import io.itookthese.api.entity.ContactSubmission;
-import org.springframework.data.repository.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-interface ContactSubmissionRepository extends Repository<ContactSubmission, Long> {
-}
+public interface ContactSubmissionRepository extends JpaRepository<ContactSubmission, Long> {}
