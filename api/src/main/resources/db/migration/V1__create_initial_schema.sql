@@ -1,0 +1,45 @@
+CREATE TABLE IF NOT EXISTS categories (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS photos (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  category_id BIGINT REFERENCES categories(id),
+    title VARCHAR(200),
+    description TEXT,
+    filename_original VARCHAR(500) NOT NULL,
+    filename_thumb VARCHAR(500) NOT NULL,
+    filename_medium VARCHAR(500) NOT NULL,
+    filename_full VARCHAR(500) NOT NULL,
+    placeholder_base64 TEXT,
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL,
+    exif_data JSONB,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS contact_submissions (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(200) NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS site_settings (
+  key VARCHAR(100) PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+

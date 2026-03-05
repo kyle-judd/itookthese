@@ -10,6 +10,10 @@ services:
       - photo_storage:/app/photos
     networks:
       - app_network
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
   db:
     image: "postgres:16-alpine"
     ports: 
@@ -28,7 +32,9 @@ services:
       timeout: 5s
       retries: 5
   nginx:
-    build: ./docker/nginx
+    build: 
+        context: .
+        dockerfile: ./docker/nginx/Dockerfile
     ports: 
       - "80:80"
       - "443:443"
