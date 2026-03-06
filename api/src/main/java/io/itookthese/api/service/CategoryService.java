@@ -19,6 +19,7 @@ public class CategoryService {
   private final CategoryRepository categoryRepository;
   private final PhotoRepository photoRepository;
 
+  @Transactional(readOnly = true)
   public List<CategoryResponse> getAllCategories() {
     return categoryRepository.findAll().stream()
         .map(
@@ -31,6 +32,7 @@ public class CategoryService {
         .toList();
   }
 
+  @Transactional(readOnly = true)
   public CategoryResponse getCategoryBySlug(String slug) {
     if (slug == null || slug.isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Slug must not be blank");

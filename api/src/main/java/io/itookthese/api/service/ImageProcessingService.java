@@ -11,7 +11,10 @@ import io.itookthese.api.enums.ImageType;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +55,7 @@ public class ImageProcessingService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File too large");
     }
 
+    List<Path> createdFiles = new ArrayList<>();
     try {
       String exifData = extractExifData(file);
       String originalFilename = file.getOriginalFilename();
@@ -70,21 +74,33 @@ public class ImageProcessingService {
       }
       int width = original.getWidth();
       int height = original.getHeight();
+      Path thumbPath = Paths.get(storagePath, thumbFileName);
       Thumbnails.of(new ByteArrayInputStream(bytes))
           .size(400, Integer.MAX_VALUE)
           .keepAspectRatio(true)
-          .toFile(Paths.get(storagePath + "/" + thumbFileName).toFile());
+          .toFile(thumbPath.toFile());
+      createdFiles.add(thumbPath);
+      Path mediumPath = Paths.get(storagePath, mediumFileName);
       Thumbnails.of(new ByteArrayInputStream(bytes))
           .size(1200, Integer.MAX_VALUE)
           .keepAspectRatio(true)
-          .toFile(Paths.get(storagePath + "/" + mediumFileName).toFile());
+          .toFile(mediumPath.toFile());
+      createdFiles.add(mediumPath);
+      Path fullPath = Paths.get(storagePath, fullFileName);
       Thumbnails.of(new ByteArrayInputStream(bytes))
           .size(2400, Integer.MAX_VALUE)
           .keepAspectRatio(true)
-          .toFile(Paths.get(storagePath + "/" + fullFileName).toFile());
+          .toFile(fullPath.toFile());
+      createdFiles.add(fullPath);
       return new ImageProcessingResult(
           thumbFileName, mediumFileName, fullFileName, "", exifData, width, height);
     } catch (IOException | ImageProcessingException e) {
+      for (Path path : createdFiles) {
+        try {
+          Files.deleteIfExists(path);
+        } catch (IOException ignored) {
+        }
+      }
       log.error("While processing image", e);
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }

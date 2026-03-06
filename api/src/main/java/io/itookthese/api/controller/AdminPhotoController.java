@@ -19,8 +19,8 @@ public class AdminPhotoController {
 
   @PostMapping
   public ResponseEntity<PhotoDetailResponse> uploadPhoto(@RequestParam("file") MultipartFile file) {
-    PhotoDetailResponse photoDetailReponse = photoService.uploadPhoto(file);
-    return ResponseEntity.status(HttpStatus.CREATED).body(photoDetailReponse);
+    PhotoDetailResponse photoDetailResponse = photoService.uploadPhoto(file);
+    return ResponseEntity.status(HttpStatus.CREATED).body(photoDetailResponse);
   }
 
   @DeleteMapping("/{id}")

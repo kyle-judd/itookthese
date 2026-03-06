@@ -17,41 +17,47 @@ import org.springframework.web.server.ResponseStatusException;
 public class SiteSettingService {
   private final SiteSettingRepository siteSettingRepository;
 
+  @Transactional(readOnly = true)
   public SiteSettingResponse getSiteSettings() {
     List<SiteSetting> settings = siteSettingRepository.findAll();
-    String siteTitle = getKey(settings, SiteSettingKey.TITLE);
-    String siteDescription = getKey(settings, SiteSettingKey.DESCRIPTION);
-    String contactEmail = getKey(settings, SiteSettingKey.EMAIL);
-    String socialLink = getKey(settings, SiteSettingKey.SOCIAL);
-    return new SiteSettingResponse(siteTitle, siteDescription, contactEmail, socialLink);
+    return mapToResponse(settings);
   }
 
   @Transactional
   public SiteSettingResponse updateSiteSetting(SiteSettingRequest siteSettingRequest) {
-    updateSetting(SiteSettingKey.TITLE, siteSettingRequest.siteTitle());
-    updateSetting(SiteSettingKey.DESCRIPTION, siteSettingRequest.siteDescription());
-    updateSetting(SiteSettingKey.EMAIL, siteSettingRequest.contactEmail());
-    updateSetting(SiteSettingKey.SOCIAL, siteSettingRequest.socialLink());
-    return getSiteSettings();
+    List<SiteSetting> settings = siteSettingRepository.findAll();
+    updateSettingInList(settings, SiteSettingKey.TITLE, siteSettingRequest.siteTitle());
+    updateSettingInList(settings, SiteSettingKey.DESCRIPTION, siteSettingRequest.siteDescription());
+    updateSettingInList(settings, SiteSettingKey.EMAIL, siteSettingRequest.contactEmail());
+    updateSettingInList(settings, SiteSettingKey.SOCIAL, siteSettingRequest.socialLink());
+    siteSettingRepository.saveAll(settings);
+    return mapToResponse(settings);
   }
 
-  private String getKey(List<SiteSetting> settings, SiteSettingKey key) {
+  private void updateSettingInList(List<SiteSetting> settings, SiteSettingKey key, String value) {
+    settings.stream()
+        .filter(s -> key.getKey().equals(s.getKey()))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR, "Missing setting: " + key.getKey()))
+        .setValue(value);
+  }
+
+  private SiteSettingResponse mapToResponse(List<SiteSetting> settings) {
+    return new SiteSettingResponse(
+        getValue(settings, SiteSettingKey.TITLE),
+        getValue(settings, SiteSettingKey.DESCRIPTION),
+        getValue(settings, SiteSettingKey.EMAIL),
+        getValue(settings, SiteSettingKey.SOCIAL));
+  }
+
+  private String getValue(List<SiteSetting> settings, SiteSettingKey key) {
     return settings.stream()
-        .filter(setting -> key.getKey().equals(setting.getKey()))
+        .filter(s -> key.getKey().equals(s.getKey()))
         .map(SiteSetting::getValue)
         .findFirst()
         .orElse(null);
-  }
-
-  private void updateSetting(SiteSettingKey key, String value) {
-    SiteSetting setting =
-        siteSettingRepository
-            .findByKey(key.getKey())
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.INTERNAL_SERVER_ERROR, "Missing setting: " + key.getKey()));
-    setting.setValue(value);
-    siteSettingRepository.save(setting);
   }
 }

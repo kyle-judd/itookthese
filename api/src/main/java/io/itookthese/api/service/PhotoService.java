@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,10 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @Slf4j
 public class PhotoService {
+  private static final String THUMB_URL_PREFIX = "/api/v1/images/thumb/";
+  private static final String MEDIUM_URL_PREFIX = "/api/v1/images/medium/";
+  private static final String FULL_URL_PREFIX = "/api/v1/images/full/";
+
   private final PhotoRepository photoRepository;
   private final ImageProcessingService imageProcessingService;
   private final CategoryRepository categoryRepository;
@@ -31,13 +36,17 @@ public class PhotoService {
 
   @Transactional(readOnly = true)
   public List<PhotoSummaryResponse> getAllPhotos(Long categoryId, Boolean isFeatured) {
-    return photoRepository.findAll(PhotoSpecification.withFilters(categoryId, isFeatured)).stream()
+    return photoRepository
+        .findAll(
+            PhotoSpecification.withFilters(categoryId, isFeatured),
+            Sort.by(Sort.Direction.ASC, "sortOrder"))
+        .stream()
         .map(
             photo ->
                 new PhotoSummaryResponse(
                     photo.getId(),
                     photo.getTitle(),
-                    "/api/v1/images/thumb/" + photo.getFilenameThumb(),
+                    THUMB_URL_PREFIX + photo.getFilenameThumb(),
                     photo.getPlaceholderBase64(),
                     photo.getWidth(),
                     photo.getHeight(),
@@ -127,15 +136,15 @@ public class PhotoService {
     return new PhotoDetailResponse(
         photo.getId(),
         photo.getTitle(),
-        "/api/v1/images/thumb/" + photo.getFilenameThumb(),
+        THUMB_URL_PREFIX + photo.getFilenameThumb(),
         photo.getPlaceholderBase64(),
         photo.getWidth(),
         photo.getHeight(),
         photo.getIsFeatured(),
         mapCategory(photo),
         photo.getDescription(),
-        "/api/v1/images/medium/" + photo.getFilenameMedium(),
-        "/api/v1/images/full/" + photo.getFilenameFull(),
+        MEDIUM_URL_PREFIX + photo.getFilenameMedium(),
+        FULL_URL_PREFIX + photo.getFilenameFull(),
         photo.getExifData());
   }
 
