@@ -32,6 +32,9 @@ public class CategoryService {
   }
 
   public CategoryResponse getCategoryBySlug(String slug) {
+    if (slug == null || slug.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Slug must not be blank");
+    }
     Category category =
         categoryRepository
             .findBySlug(slug)
@@ -80,11 +83,11 @@ public class CategoryService {
   }
 
   private Category mapCategoryRequestToCategory(CategoryRequest categoryRequest) {
-    Category category = new Category();
-    category.setName(categoryRequest.name());
-    category.setDescription(categoryRequest.description());
-    category.setSlug(categoryRequest.slug());
-    category.setSortOrder(categoryRequest.sortOrder());
-    return category;
+    return Category.builder()
+        .name(categoryRequest.name())
+        .description(categoryRequest.description())
+        .slug(categoryRequest.slug())
+        .sortOrder(categoryRequest.sortOrder())
+        .build();
   }
 }

@@ -26,7 +26,7 @@ public class AuthController {
 
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-    if (!loginRequest.username().equals(username) || !loginRequest.password().equals(password)) {
+    if (!username.equals(loginRequest.username()) || !password.equals(loginRequest.password())) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
     String token = jwtTokenProvider.generateToken(loginRequest.username());

@@ -2,9 +2,7 @@ package io.itookthese.api.entity;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,7 +10,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "categories")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Category {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

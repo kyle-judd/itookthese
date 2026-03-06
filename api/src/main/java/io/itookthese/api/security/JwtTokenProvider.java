@@ -34,12 +34,16 @@ public class JwtTokenProvider {
   }
 
   public String getUsernameFromToken(String token) {
-    return Jwts.parser()
+    String subject = Jwts.parser()
         .verifyWith(getSigningKey())
         .build()
         .parseSignedClaims(token)
         .getPayload()
         .getSubject();
+    if (subject == null) {
+      throw new IllegalArgumentException("Token has no subject");
+    }
+    return subject;
   }
 
   private SecretKey getSigningKey() {

@@ -1,8 +1,10 @@
 package io.itookthese.api.service;
 
 import io.itookthese.api.dto.ContactSubmissionRequest;
+import io.itookthese.api.dto.ContactSubmissionResponse;
 import io.itookthese.api.entity.ContactSubmission;
 import io.itookthese.api.repository.ContactSubmissionRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,18 +21,45 @@ public class ContactSubmissionService {
     if (submissionRequest.honeypot() != null && !submissionRequest.honeypot().isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
-    ContactSubmission contactSubmission = mapContactSubmissionRequest(submissionRequest);
-    contactSubmission.setIsRead(false);
-    contactSubmissionRepository.save(contactSubmission);
+    contactSubmissionRepository.save(mapContactSubmissionRequest(submissionRequest));
+  }
+
+  public List<ContactSubmissionResponse> getAllContactSubmissions() {
+    return contactSubmissionRepository.findAll().stream()
+        .map(this::mapContactSubmissionToResponse)
+        .toList();
+  }
+
+  @Transactional
+  public ContactSubmissionResponse markContactAsRead(Long id) {
+    ContactSubmission submission =
+        contactSubmissionRepository
+            .findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    submission.setIsRead(true);
+    return mapContactSubmissionToResponse(contactSubmissionRepository.save(submission));
   }
 
   private ContactSubmission mapContactSubmissionRequest(
       ContactSubmissionRequest submissionRequest) {
-    ContactSubmission contactSubmission = new ContactSubmission();
-    contactSubmission.setName(submissionRequest.name());
-    contactSubmission.setEmail(submissionRequest.email());
-    contactSubmission.setSubject(submissionRequest.subject());
-    contactSubmission.setMessage(submissionRequest.message());
-    return contactSubmission;
+    return ContactSubmission.builder()
+        .name(submissionRequest.name())
+        .email(submissionRequest.email())
+        .subject(submissionRequest.subject())
+        .message(submissionRequest.message())
+        .isRead(false)
+        .build();
+  }
+
+  private ContactSubmissionResponse mapContactSubmissionToResponse(
+      ContactSubmission contactSubmission) {
+    return new ContactSubmissionResponse(
+        contactSubmission.getId(),
+        contactSubmission.getName(),
+        contactSubmission.getEmail(),
+        contactSubmission.getSubject(),
+        contactSubmission.getMessage(),
+        contactSubmission.getIsRead(),
+        contactSubmission.getCreatedAt());
   }
 }

@@ -2,16 +2,16 @@ package io.itookthese.api.entity;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "contact_submissions")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class ContactSubmission {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
