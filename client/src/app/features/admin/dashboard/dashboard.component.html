@@ -129,9 +129,9 @@
         @if (photos().length === 0) {
           <div class="text-center opacity-50 py-24">No photos yet.</div>
         } @else {
-          <div cdkDropList (cdkDropListDropped)="dropPhoto($event)" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div cdkDropList cdkDropListOrientation="mixed" (cdkDropListDropped)="dropPhoto($event)" class="flex flex-wrap gap-4">
             @for (photo of photos(); track photo.id) {
-              <div cdkDrag class="glass-card rounded-2xl overflow-hidden group cursor-grab active:cursor-grabbing">
+              <div cdkDrag class="glass-card rounded-2xl overflow-hidden group cursor-grab active:cursor-grabbing w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.75rem)] lg:w-[calc(25%-0.75rem)] xl:w-[calc(20%-0.8rem)]">
                 <div class="aspect-square overflow-hidden">
                   <img [src]="photo.mediumUrl" [alt]="photo.title" class="w-full h-full object-cover" />
                 </div>
