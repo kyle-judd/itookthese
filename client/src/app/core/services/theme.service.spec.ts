@@ -22,8 +22,24 @@ describe('ThemeService', () => {
   });
 
   describe('initial theme', () => {
-    it('should default to light when nothing in localStorage', () => {
-      expect(service.theme()).toBe('light');
+    it('should default to system preference (dark) when nothing in localStorage', () => {
+      spyOn(window, 'matchMedia').and.returnValue({ matches: true } as MediaQueryList);
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({});
+      const freshService = TestBed.inject(ThemeService);
+
+      expect(freshService.theme()).toBe('dark');
+    });
+
+    it('should default to system preference (light) when nothing in localStorage', () => {
+      spyOn(window, 'matchMedia').and.returnValue({ matches: false } as MediaQueryList);
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({});
+      const freshService = TestBed.inject(ThemeService);
+
+      expect(freshService.theme()).toBe('light');
     });
 
     it('should load dark theme from localStorage', () => {
@@ -36,14 +52,15 @@ describe('ThemeService', () => {
       expect(freshService.theme()).toBe('dark');
     });
 
-    it('should default to light for unknown localStorage value', () => {
+    it('should fall back to system preference for unknown localStorage value', () => {
       localStorage.setItem('theme', 'invalid');
+      spyOn(window, 'matchMedia').and.returnValue({ matches: true } as MediaQueryList);
 
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({});
       const freshService = TestBed.inject(ThemeService);
 
-      expect(freshService.theme()).toBe('light');
+      expect(freshService.theme()).toBe('dark');
     });
   });
 
