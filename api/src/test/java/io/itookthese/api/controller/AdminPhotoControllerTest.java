@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.itookthese.api.config.GlobalExceptionHandler;
-import io.itookthese.api.dto.CategoryResponse;
 import io.itookthese.api.dto.PhotoDetailResponse;
 import io.itookthese.api.dto.PhotoUpdateRequest;
 import io.itookthese.api.service.PhotoService;
@@ -34,9 +33,6 @@ class AdminPhotoControllerTest {
   private MockMvc mockMvc;
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  private final CategoryResponse category =
-      new CategoryResponse(1L, "Landscape", "landscape", null);
-
   @BeforeEach
   void setUp() {
     mockMvc =
@@ -47,8 +43,9 @@ class AdminPhotoControllerTest {
 
   private PhotoDetailResponse samplePhoto() {
     return new PhotoDetailResponse(
-        1L, "Test Photo", "/thumb.jpg", null, 800, 600, false, category,
-        "Description", "/medium.jpg", "/full.jpg", null);
+        1L, "Test Photo", "Description", "/thumb.jpg", "/medium.jpg", "/full.jpg",
+        null, 800, 600, false, "Landscape", 1L, 0,
+        null, null, null, null, null, null, null);
   }
 
   @Test
@@ -78,8 +75,9 @@ class AdminPhotoControllerTest {
     PhotoUpdateRequest updateRequest = new PhotoUpdateRequest(1L, "Updated Title", "Updated desc", 1, true);
     PhotoDetailResponse updated =
         new PhotoDetailResponse(
-            1L, "Updated Title", "/thumb.jpg", null, 800, 600, true, category,
-            "Updated desc", "/medium.jpg", "/full.jpg", null);
+            1L, "Updated Title", "Updated desc", "/thumb.jpg", "/medium.jpg", "/full.jpg",
+            null, 800, 600, true, "Landscape", 1L, 1,
+            null, null, null, null, null, null, null);
     when(photoService.updatePhoto(eq(1L), any())).thenReturn(updated);
 
     mockMvc

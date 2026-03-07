@@ -18,6 +18,13 @@ services:
       - JWT_EXPIRATION=${JWT_EXPIRATION}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - SPRING_PROFILE=${SPRING_PROFILE:-dev}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   db:
     image: "postgres:16-alpine"
     ports: 
@@ -43,7 +50,8 @@ services:
       - "80:80"
       - "443:443"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     volumes:
       - photo_storage:/app/photos
     networks:

@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class ContactSubmissionService {
   private final ContactSubmissionRepository contactSubmissionRepository;
+  private final EmailNotificationService emailNotificationService;
 
   @Transactional
   public void submitContact(ContactSubmissionRequest submissionRequest) {
@@ -22,6 +23,7 @@ public class ContactSubmissionService {
       return;
     }
     contactSubmissionRepository.save(mapContactSubmissionRequest(submissionRequest));
+    emailNotificationService.sendContactNotification(submissionRequest);
   }
 
   public List<ContactSubmissionResponse> getAllContactSubmissions() {

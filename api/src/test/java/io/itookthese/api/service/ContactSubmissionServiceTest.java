@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 class ContactSubmissionServiceTest {
 
   @Mock private ContactSubmissionRepository contactSubmissionRepository;
+  @Mock private EmailNotificationService emailNotificationService;
 
   @InjectMocks private ContactSubmissionService contactSubmissionService;
 

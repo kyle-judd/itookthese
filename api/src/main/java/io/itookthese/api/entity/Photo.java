@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "photos")
@@ -47,6 +49,7 @@ public class Photo {
   private Integer height;
 
   @Column(name = "exif_data", columnDefinition = "jsonb")
+  @JdbcTypeCode(SqlTypes.JSON)
   private String exifData;
 
   @Column(name = "sort_order", nullable = false)

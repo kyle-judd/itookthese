@@ -31,7 +31,8 @@ public class SecurityConfig {
                         "/api/v1/photos/**",
                         "/api/v1/contact",
                         "/api/v1/settings/**",
-                        "/api/v1/auth/login")
+                        "/api/v1/auth/login",
+                        "/actuator/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())

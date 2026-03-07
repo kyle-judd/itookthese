@@ -1,5 +1,7 @@
 package io.itookthese.api.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.itookthese.api.dto.*;
 import io.itookthese.api.entity.Category;
 import io.itookthese.api.entity.Photo;
@@ -8,7 +10,9 @@ import io.itookthese.api.repository.PhotoRepository;
 import io.itookthese.api.specification.PhotoSpecification;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +34,7 @@ public class PhotoService {
   private final PhotoRepository photoRepository;
   private final ImageProcessingService imageProcessingService;
   private final CategoryRepository categoryRepository;
+  private final ObjectMapper objectMapper;
 
   @Value("${storage.path}")
   private String storagePath;
@@ -41,17 +46,7 @@ public class PhotoService {
             PhotoSpecification.withFilters(categoryId, isFeatured),
             Sort.by(Sort.Direction.ASC, "sortOrder"))
         .stream()
-        .map(
-            photo ->
-                new PhotoSummaryResponse(
-                    photo.getId(),
-                    photo.getTitle(),
-                    THUMB_URL_PREFIX + photo.getFilenameThumb(),
-                    photo.getPlaceholderBase64(),
-                    photo.getWidth(),
-                    photo.getHeight(),
-                    photo.getIsFeatured(),
-                    mapCategory(photo)))
+        .map(this::mapPhotoSummaryResponse)
         .toList();
   }
 
@@ -75,6 +70,7 @@ public class PhotoService {
             .filenameMedium(imageProcessingResult.filenameMedium())
             .filenameFull(imageProcessingResult.filenameFull())
             .filenameOriginal(file.getOriginalFilename())
+            .placeholderBase64(imageProcessingResult.placeholderBase64())
             .sortOrder(0)
             .isFeatured(false)
             .description(null)
@@ -110,18 +106,25 @@ public class PhotoService {
         photoRepository
             .findById(photoId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    Category existingPhotoCategory = null;
+    if (photoUpdateRequest.title() != null) {
+      existingPhoto.setTitle(photoUpdateRequest.title());
+    }
+    if (photoUpdateRequest.description() != null) {
+      existingPhoto.setDescription(photoUpdateRequest.description());
+    }
+    if (photoUpdateRequest.sortOrder() != null) {
+      existingPhoto.setSortOrder(photoUpdateRequest.sortOrder());
+    }
+    if (photoUpdateRequest.featured() != null) {
+      existingPhoto.setIsFeatured(photoUpdateRequest.featured());
+    }
     if (photoUpdateRequest.categoryId() != null) {
-      existingPhotoCategory =
+      Category category =
           categoryRepository
               .findById(photoUpdateRequest.categoryId())
               .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+      existingPhoto.setCategory(category);
     }
-    existingPhoto.setTitle(photoUpdateRequest.title());
-    existingPhoto.setDescription(photoUpdateRequest.description());
-    existingPhoto.setSortOrder(photoUpdateRequest.sortOrder());
-    existingPhoto.setIsFeatured(photoUpdateRequest.featured());
-    existingPhoto.setCategory(existingPhotoCategory);
     return mapPhotoDetailResponse(photoRepository.save(existingPhoto));
   }
 
@@ -132,28 +135,66 @@ public class PhotoService {
     }
   }
 
-  private PhotoDetailResponse mapPhotoDetailResponse(Photo photo) {
-    return new PhotoDetailResponse(
+  private PhotoSummaryResponse mapPhotoSummaryResponse(Photo photo) {
+    Category category = photo.getCategory();
+    return new PhotoSummaryResponse(
         photo.getId(),
         photo.getTitle(),
+        photo.getDescription(),
         THUMB_URL_PREFIX + photo.getFilenameThumb(),
+        MEDIUM_URL_PREFIX + photo.getFilenameMedium(),
+        FULL_URL_PREFIX + photo.getFilenameFull(),
         photo.getPlaceholderBase64(),
         photo.getWidth(),
         photo.getHeight(),
         photo.getIsFeatured(),
-        mapCategory(photo),
-        photo.getDescription(),
-        MEDIUM_URL_PREFIX + photo.getFilenameMedium(),
-        FULL_URL_PREFIX + photo.getFilenameFull(),
-        photo.getExifData());
+        category != null ? category.getName() : null,
+        category != null ? category.getId() : null,
+        photo.getSortOrder());
   }
 
-  private CategoryResponse mapCategory(Photo photo) {
-    if (photo.getCategory() == null) {
-      return null;
-    }
+  private PhotoDetailResponse mapPhotoDetailResponse(Photo photo) {
     Category category = photo.getCategory();
-    return new CategoryResponse(
-        category.getId(), category.getName(), category.getSlug(), category.getDescription());
+    Map<String, String> exif = parseExif(photo.getExifData());
+    String cameraModel = exif.get("model");
+    if (cameraModel != null && exif.get("make") != null) {
+      String make = exif.get("make");
+      if (!cameraModel.startsWith(make)) {
+        cameraModel = make + " " + cameraModel;
+      }
+    }
+    return new PhotoDetailResponse(
+        photo.getId(),
+        photo.getTitle(),
+        photo.getDescription(),
+        THUMB_URL_PREFIX + photo.getFilenameThumb(),
+        MEDIUM_URL_PREFIX + photo.getFilenameMedium(),
+        FULL_URL_PREFIX + photo.getFilenameFull(),
+        photo.getPlaceholderBase64(),
+        photo.getWidth(),
+        photo.getHeight(),
+        photo.getIsFeatured(),
+        category != null ? category.getName() : null,
+        category != null ? category.getId() : null,
+        photo.getSortOrder(),
+        cameraModel,
+        null,
+        exif.get("focalLength"),
+        exif.get("aperture"),
+        exif.get("shutterSpeed"),
+        exif.get("iso"),
+        photo.getCreatedAt() != null ? photo.getCreatedAt().toString() : null);
+  }
+
+  private Map<String, String> parseExif(String exifData) {
+    if (exifData == null || exifData.isBlank()) {
+      return Collections.emptyMap();
+    }
+    try {
+      return objectMapper.readValue(exifData, new TypeReference<>() {});
+    } catch (Exception e) {
+      log.warn("Failed to parse EXIF data", e);
+      return Collections.emptyMap();
+    }
   }
 }

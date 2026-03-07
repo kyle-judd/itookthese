@@ -10,11 +10,13 @@ import io.itookthese.api.dto.ImageProcessingResult;
 import io.itookthese.api.enums.ImageType;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +53,7 @@ public class ImageProcessingService {
             .contains(contentType)) {
       throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
-    if (file.getSize() > 30 * 1024 * 1024) {
+    if (file.getSize() > 50 * 1024 * 1024) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File too large");
     }
 
@@ -92,8 +94,9 @@ public class ImageProcessingService {
           .keepAspectRatio(true)
           .toFile(fullPath.toFile());
       createdFiles.add(fullPath);
+      String placeholderBase64 = generatePlaceholder(bytes);
       return new ImageProcessingResult(
-          thumbFileName, mediumFileName, fullFileName, "", exifData, width, height);
+          thumbFileName, mediumFileName, fullFileName, placeholderBase64, exifData, width, height);
     } catch (IOException | ImageProcessingException e) {
       for (Path path : createdFiles) {
         try {
@@ -104,6 +107,17 @@ public class ImageProcessingService {
       log.error("While processing image", e);
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  private String generatePlaceholder(byte[] imageBytes) throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    Thumbnails.of(new ByteArrayInputStream(imageBytes))
+        .size(20, Integer.MAX_VALUE)
+        .keepAspectRatio(true)
+        .outputFormat("jpg")
+        .outputQuality(0.5)
+        .toOutputStream(baos);
+    return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(baos.toByteArray());
   }
 
   private String extractExifData(MultipartFile file) throws IOException, ImageProcessingException {

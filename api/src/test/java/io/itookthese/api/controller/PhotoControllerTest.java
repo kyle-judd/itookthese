@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.itookthese.api.config.GlobalExceptionHandler;
-import io.itookthese.api.dto.CategoryResponse;
 import io.itookthese.api.dto.PhotoDetailResponse;
 import io.itookthese.api.dto.PhotoSummaryResponse;
 import io.itookthese.api.service.PhotoService;
@@ -29,9 +28,6 @@ class PhotoControllerTest {
   @InjectMocks private PhotoController photoController;
   private MockMvc mockMvc;
 
-  private final CategoryResponse category =
-      new CategoryResponse(1L, "Landscape", "landscape", "Landscape photos");
-
   @BeforeEach
   void setUp() {
     mockMvc =
@@ -43,7 +39,7 @@ class PhotoControllerTest {
   @Test
   void getAllPhotos_returnsList() throws Exception {
     PhotoSummaryResponse photo =
-        new PhotoSummaryResponse(1L, "Sunset", "/thumb.jpg", null, 800, 600, true, category);
+        new PhotoSummaryResponse(1L, "Sunset", null, "/thumb.jpg", "/medium.jpg", "/full.jpg", null, 800, 600, true, "Landscape", 1L, 0);
     when(photoService.getAllPhotos(null, null)).thenReturn(List.of(photo));
 
     mockMvc
@@ -66,7 +62,7 @@ class PhotoControllerTest {
   @Test
   void getAllPhotos_withFeaturedFilter_returnsList() throws Exception {
     PhotoSummaryResponse photo =
-        new PhotoSummaryResponse(1L, "Featured", "/thumb.jpg", null, 800, 600, true, category);
+        new PhotoSummaryResponse(1L, "Featured", null, "/thumb.jpg", "/medium.jpg", "/full.jpg", null, 800, 600, true, "Landscape", 1L, 0);
     when(photoService.getAllPhotos(null, true)).thenReturn(List.of(photo));
 
     mockMvc
@@ -79,8 +75,9 @@ class PhotoControllerTest {
   void getPhotoById_returnsPhoto() throws Exception {
     PhotoDetailResponse detail =
         new PhotoDetailResponse(
-            1L, "Sunset", "/thumb.jpg", null, 800, 600, true, category,
-            "A beautiful sunset", "/medium.jpg", "/full.jpg", "{\"camera\":\"iPhone 15\"}");
+            1L, "Sunset", "A beautiful sunset", "/thumb.jpg", "/medium.jpg", "/full.jpg",
+            null, 800, 600, true, "Landscape", 1L, 0,
+            "iPhone 15", null, "24mm", "f/1.8", "1/120", "100", null);
     when(photoService.getPhotoById(1L)).thenReturn(detail);
 
     mockMvc
@@ -88,7 +85,8 @@ class PhotoControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(1))
         .andExpect(jsonPath("$.description").value("A beautiful sunset"))
-        .andExpect(jsonPath("$.fullUrl").value("/full.jpg"));
+        .andExpect(jsonPath("$.fullUrl").value("/full.jpg"))
+        .andExpect(jsonPath("$.cameraModel").value("iPhone 15"));
   }
 
   @Test

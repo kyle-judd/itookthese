@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.itookthese.api.dto.ImageProcessingResult;
 import io.itookthese.api.dto.PhotoDetailResponse;
 import io.itookthese.api.dto.PhotoSummaryResponse;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -34,6 +36,7 @@ class PhotoServiceTest {
   @Mock private ImageProcessingService imageProcessingService;
   @Mock private CategoryRepository categoryRepository;
   @Mock private MultipartFile multipartFile;
+  @Spy private ObjectMapper objectMapper = new ObjectMapper();
 
   @InjectMocks private PhotoService photoService;
 
@@ -61,7 +64,7 @@ class PhotoServiceTest {
         .height(600)
         .isFeatured(true)
         .sortOrder(0)
-        .exifData("{\"camera\":\"iPhone 15\"}")
+        .exifData("{\"make\":\"Apple\",\"model\":\"iPhone 15\",\"iso\":\"100\",\"aperture\":\"f/1.8\",\"shutterSpeed\":\"1/120\",\"focalLength\":\"26mm\"}")
         .category(sampleCategory())
         .build();
   }
@@ -96,8 +99,11 @@ class PhotoServiceTest {
     assertThat(response.id()).isEqualTo(1L);
     assertThat(response.title()).isEqualTo("Sunset");
     assertThat(response.thumbUrl()).isEqualTo("/api/v1/images/thumb/thumb.jpg");
+    assertThat(response.mediumUrl()).isEqualTo("/api/v1/images/medium/medium.jpg");
+    assertThat(response.fullUrl()).isEqualTo("/api/v1/images/full/full.jpg");
     assertThat(response.isFeatured()).isTrue();
-    assertThat(response.category().name()).isEqualTo("Landscape");
+    assertThat(response.category()).isEqualTo("Landscape");
+    assertThat(response.categoryId()).isEqualTo(1L);
   }
 
   @SuppressWarnings("unchecked")
@@ -110,6 +116,7 @@ class PhotoServiceTest {
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).category()).isNull();
+    assertThat(result.get(0).categoryId()).isNull();
   }
 
   @SuppressWarnings("unchecked")
@@ -132,8 +139,13 @@ class PhotoServiceTest {
     assertThat(result.thumbUrl()).isEqualTo("/api/v1/images/thumb/thumb.jpg");
     assertThat(result.mediumUrl()).isEqualTo("/api/v1/images/medium/medium.jpg");
     assertThat(result.fullUrl()).isEqualTo("/api/v1/images/full/full.jpg");
-    assertThat(result.exifData()).isEqualTo("{\"camera\":\"iPhone 15\"}");
-    assertThat(result.category().slug()).isEqualTo("landscape");
+    assertThat(result.category()).isEqualTo("Landscape");
+    assertThat(result.categoryId()).isEqualTo(1L);
+    assertThat(result.cameraModel()).isEqualTo("Apple iPhone 15");
+    assertThat(result.iso()).isEqualTo("100");
+    assertThat(result.aperture()).isEqualTo("f/1.8");
+    assertThat(result.shutterSpeed()).isEqualTo("1/120");
+    assertThat(result.focalLength()).isEqualTo("26mm");
   }
 
   @Test
@@ -213,11 +225,11 @@ class PhotoServiceTest {
     assertThat(result.title()).isEqualTo("Updated Title");
     assertThat(result.description()).isEqualTo("Updated desc");
     assertThat(result.isFeatured()).isFalse();
-    assertThat(result.category().name()).isEqualTo("Nature");
+    assertThat(result.category()).isEqualTo("Nature");
   }
 
   @Test
-  void updatePhoto_withNullCategoryId_setsNullCategory() {
+  void updatePhoto_withNullCategoryId_keepsExistingCategory() {
     Photo existingPhoto = samplePhoto();
     PhotoUpdateRequest request = new PhotoUpdateRequest(null, "Title", "Desc", 0, true);
 
@@ -225,7 +237,7 @@ class PhotoServiceTest {
     when(photoRepository.save(any(Photo.class))).thenAnswer(inv -> inv.getArgument(0));
 
     PhotoDetailResponse result = photoService.updatePhoto(1L, request);
-    assertThat(result.category()).isNull();
+    assertThat(result.category()).isEqualTo("Landscape");
   }
 
   @Test
