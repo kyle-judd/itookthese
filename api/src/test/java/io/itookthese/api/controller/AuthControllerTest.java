@@ -1,6 +1,5 @@
 package io.itookthese.api.controller;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -25,20 +23,18 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 class AuthControllerTest {
 
   @Mock private JwtTokenProvider jwtTokenProvider;
-  @Mock private PasswordEncoder passwordEncoder;
   private AuthController authController;
   private MockMvc mockMvc;
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   private static final String ADMIN_USERNAME = "testadmin";
-  private static final String ADMIN_PASSWORD_HASH =
-      "$2a$10$dXJ3SW6G7P50lGmMQgel2uB9pUdKPJqnPKz1gDR6oMJpVYvlMzKqG";
+  private static final String ADMIN_PASSWORD = "password123";
 
   @BeforeEach
   void setUp() {
-    authController = new AuthController(jwtTokenProvider, passwordEncoder);
+    authController = new AuthController(jwtTokenProvider);
     ReflectionTestUtils.setField(authController, "username", ADMIN_USERNAME);
-    ReflectionTestUtils.setField(authController, "password", ADMIN_PASSWORD_HASH);
+    ReflectionTestUtils.setField(authController, "password", ADMIN_PASSWORD);
     mockMvc =
         MockMvcBuilders.standaloneSetup(authController)
             .setControllerAdvice(new GlobalExceptionHandler())
@@ -47,7 +43,6 @@ class AuthControllerTest {
 
   @Test
   void login_withValidCredentials_returnsToken() throws Exception {
-    when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
     when(jwtTokenProvider.generateToken("testadmin")).thenReturn("mock-jwt-token");
 
     LoginRequest request = new LoginRequest("testadmin", "password123");
@@ -75,8 +70,6 @@ class AuthControllerTest {
 
   @Test
   void login_withInvalidPassword_returnsUnauthorized() throws Exception {
-    when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
-
     LoginRequest request = new LoginRequest("testadmin", "wrongpassword");
 
     mockMvc
