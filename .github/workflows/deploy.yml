@@ -58,5 +58,5 @@ jobs:
 
           ssh root@$SERVER_IP "cd /opt/itookthese && \
             docker compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true && \
-            docker compose -f docker-compose.prod.yml build --no-cache && \
+            docker compose -f docker-compose.prod.yml build && \
             docker compose -f docker-compose.prod.yml up -d"
