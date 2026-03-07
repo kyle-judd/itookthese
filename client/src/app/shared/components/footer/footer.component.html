@@ -1,0 +1,55 @@
+<footer class="py-12 px-6 border-t border-border/50">
+  <div class="max-w-7xl mx-auto">
+    <div class="glass-card p-8 rounded-3xl">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+
+        <div class="flex items-center gap-3">
+          <div class="glass-card p-2 rounded-full">
+            <!-- Camera icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+              <circle cx="12" cy="13" r="3"/>
+            </svg>
+          </div>
+          <div>
+            <p class="opacity-70">Kyle Judd Photography</p>
+            <p class="text-sm opacity-50">© {{ currentYear }} Kyle Judd. All rights reserved.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button
+            (click)="openContact.emit()"
+            class="glass-button p-3 rounded-full transition-transform hover:scale-110 active:scale-90"
+            aria-label="Contact"
+          >
+            <!-- Mail icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+          </button>
+
+          <a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="glass-button p-3 rounded-full transition-transform hover:scale-110 active:scale-90"
+            aria-label="Instagram"
+          >
+            <!-- Instagram icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+            </svg>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</footer>

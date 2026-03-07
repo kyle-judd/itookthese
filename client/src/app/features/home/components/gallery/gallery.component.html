@@ -1,0 +1,38 @@
+<section id="gallery" class="py-24 px-6">
+  <div class="max-w-7xl mx-auto">
+
+    <div appInView class="scroll-reveal text-center mb-16">
+      <h2 class="text-4xl md:text-5xl mb-4 tracking-tight font-medium">Gallery</h2>
+      <p class="text-lg opacity-70 max-w-2xl mx-auto">
+        A curated collection of moments captured with iPhone
+      </p>
+    </div>
+
+    @if (photos().length === 0) {
+      <div class="text-center opacity-50 py-24">
+        <p>No photos yet.</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (photo of photos(); track photo.id; let i = $index) {
+          <div appInView [delay]="i * 100" class="scroll-reveal">
+            <app-photo-card
+              [photo]="photo"
+              (photoSelected)="openModal($event)"
+            />
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</section>
+
+@if (selectedPhoto()) {
+  <app-photo-modal
+    [photo]="selectedPhoto()!"
+    [photos]="photos()"
+    (closed)="closeModal()"
+    (photoChanged)="openModal($event)"
+  />
+}

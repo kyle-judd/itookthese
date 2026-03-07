@@ -1,0 +1,23 @@
+<div class="min-h-screen bg-background text-foreground">
+  <app-header />
+  <main>
+    <app-hero />
+    <div id="gallery">
+      @defer (on viewport) {
+        <app-gallery />
+      } @placeholder {
+        <div class="py-24"></div>
+      }
+    </div>
+    @defer (on viewport) {
+      <app-about />
+    } @placeholder {
+      <div class="py-24"></div>
+    }
+  </main>
+  <app-footer (openContact)="showContact.set(true)" />
+</div>
+
+@if (showContact()) {
+  <app-contact (closed)="showContact.set(false)" />
+}

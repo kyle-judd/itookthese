@@ -1,0 +1,64 @@
+<section id="about" class="py-24 px-6 relative">
+
+  <!-- Background orb -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 blur-3xl pointer-events-none"></div>
+
+  <div class="max-w-7xl mx-auto relative">
+
+    <!-- Heading -->
+    <div appInView class="scroll-reveal text-center mb-16">
+      <h2 class="text-4xl md:text-5xl mb-4 tracking-tight font-medium">About This Portfolio</h2>
+      <p class="text-lg opacity-70 max-w-2xl mx-auto">
+        A celebration of mobile photography and the art of seeing
+      </p>
+    </div>
+
+    <!-- Feature cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+      @for (feature of features; track feature.title; let i = $index) {
+        <div appInView [delay]="i * 150" class="scroll-reveal glass-card p-8 rounded-3xl transition-transform duration-500 hover:-translate-y-2">
+          <div class="mb-4 inline-block glass-card p-3 rounded-2xl">
+
+            @switch (feature.icon) {
+              @case ('smartphone') {
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+                  <path d="M12 18h.01"/>
+                </svg>
+              }
+              @case ('eye') {
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              }
+              @case ('heart') {
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                </svg>
+              }
+            }
+
+          </div>
+          <h3 class="text-xl font-medium mb-3">{{ feature.title }}</h3>
+          <p class="opacity-70 leading-relaxed">{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+
+    <!-- Philosophy card -->
+    <div appInView [delay]="300" class="scroll-reveal glass-card p-12 rounded-3xl text-center max-w-3xl mx-auto">
+      <h3 class="text-2xl font-medium mb-4">My Philosophy</h3>
+      <p class="opacity-70 leading-relaxed text-lg">
+        The best camera is the one you have with you. With an iPhone in my pocket,
+        I'm always ready to capture the fleeting moments that make life beautiful.
+        This portfolio showcases what's possible when creativity meets the powerful
+        technology we carry every day.
+      </p>
+    </div>
+
+  </div>
+</section>

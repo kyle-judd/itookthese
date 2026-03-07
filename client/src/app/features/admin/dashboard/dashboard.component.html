@@ -1,0 +1,312 @@
+<div class="min-h-screen bg-background text-foreground">
+
+  <!-- Top bar -->
+  <header class="px-6 py-4">
+    <div class="max-w-7xl mx-auto">
+      <div class="glass-card px-6 py-4 rounded-2xl flex items-center justify-between">
+        <h1 class="text-xl font-medium tracking-tight">
+          <a routerLink="/" class="hover:opacity-70 transition-opacity">iTookThese</a>
+          <span class="opacity-50"> — Admin</span>
+        </h1>
+        <div class="flex items-center gap-3">
+          <button
+            (click)="themeService.toggleTheme()"
+            class="glass-button p-2 rounded-full transition-transform hover:scale-105 active:scale-95"
+            aria-label="Toggle theme"
+          >
+            @if (themeService.theme() === 'light') {
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+              </svg>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+              </svg>
+            }
+          </button>
+          <button
+            (click)="logout()"
+            class="glass-button px-4 py-2 rounded-full text-sm transition-transform hover:scale-105 active:scale-95"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Error toast -->
+  @if (error()) {
+    <div class="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-red-500/90 backdrop-blur-lg text-white px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3 animate-fade-in">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" x2="12" y1="8" y2="12"/>
+        <line x1="12" x2="12.01" y1="16" y2="16"/>
+      </svg>
+      <span class="text-sm font-medium">{{ error() }}</span>
+      <button (click)="error.set(null)" class="ml-2 opacity-70 hover:opacity-100">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  }
+
+  <main class="max-w-7xl mx-auto px-6 py-8">
+
+    <!-- Tab nav -->
+    <div class="flex gap-2 mb-8">
+      <button
+        (click)="setTab('photos')"
+        [class.opacity-100]="activeTab() === 'photos'"
+        [class.opacity-50]="activeTab() !== 'photos'"
+        class="glass-button px-5 py-2 rounded-full text-sm font-medium transition-all"
+      >
+        Photos ({{ photos().length }})
+      </button>
+      <button
+        (click)="setTab('submissions')"
+        [class.opacity-100]="activeTab() === 'submissions'"
+        [class.opacity-50]="activeTab() !== 'submissions'"
+        class="glass-button px-5 py-2 rounded-full text-sm font-medium transition-all"
+      >
+        Submissions
+        @if (unreadCount > 0) {
+          <span class="ml-1.5 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">{{ unreadCount }}</span>
+        }
+      </button>
+      <button
+        (click)="setTab('settings')"
+        [class.opacity-100]="activeTab() === 'settings'"
+        [class.opacity-50]="activeTab() !== 'settings'"
+        class="glass-button px-5 py-2 rounded-full text-sm font-medium transition-all"
+      >
+        Settings
+      </button>
+    </div>
+
+    <!-- ── Photos tab ── -->
+    @if (activeTab() === 'photos') {
+      <div>
+        <!-- Upload -->
+        <div class="glass-card p-6 rounded-3xl mb-6 flex items-center gap-4">
+          <label
+            class="glass-button px-5 py-2.5 rounded-full text-sm font-medium cursor-pointer transition-transform hover:scale-105 active:scale-95 inline-flex items-center gap-2"
+            [class.opacity-50]="uploadLoading()"
+          >
+            @if (uploadLoading()) {
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+              </svg>
+              Uploading...
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" x2="12" y1="3" y2="15"/>
+              </svg>
+              Upload Photo
+            }
+            <input
+              type="file"
+              accept="image/*"
+              class="hidden"
+              [disabled]="uploadLoading()"
+              (change)="onFileSelected($event)"
+            />
+          </label>
+          <p class="text-sm opacity-50">JPEG, PNG, HEIC supported</p>
+        </div>
+
+        <!-- Photo grid -->
+        @if (photos().length === 0) {
+          <div class="text-center opacity-50 py-24">No photos yet.</div>
+        } @else {
+          <div cdkDropList (cdkDropListDropped)="dropPhoto($event)" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            @for (photo of photos(); track photo.id) {
+              <div cdkDrag class="glass-card rounded-2xl overflow-hidden group cursor-grab active:cursor-grabbing">
+                <div class="aspect-square overflow-hidden">
+                  <img [src]="photo.mediumUrl" [alt]="photo.title" class="w-full h-full object-cover" />
+                </div>
+                <div class="p-3">
+                  @if (editingPhotoId() === photo.id) {
+                    <!-- Inline edit form -->
+                    <input
+                      [(ngModel)]="editTitle"
+                      placeholder="Title"
+                      class="w-full glass-card px-2 py-1 rounded-lg text-sm mb-1.5 bg-transparent outline-none"
+                    />
+                    <input
+                      [(ngModel)]="editDescription"
+                      placeholder="Description"
+                      class="w-full glass-card px-2 py-1 rounded-lg text-sm mb-1.5 bg-transparent outline-none"
+                    />
+                    <select
+                      [(ngModel)]="editCategoryId"
+                      class="w-full glass-card px-2 py-1 rounded-lg text-sm mb-2 bg-transparent outline-none"
+                    >
+                      <option [ngValue]="null">Uncategorized</option>
+                      @for (cat of categories(); track cat.id) {
+                        <option [ngValue]="cat.id">{{ cat.name }}</option>
+                      }
+                    </select>
+                    <div class="flex items-center gap-1.5">
+                      <button
+                        (click)="savePhoto(photo)"
+                        class="glass-button px-2.5 py-1 rounded-lg text-xs font-medium transition-transform hover:scale-105"
+                      >Save</button>
+                      <button
+                        (click)="cancelEditing()"
+                        class="glass-button px-2.5 py-1 rounded-lg text-xs opacity-60 transition-transform hover:scale-105"
+                      >Cancel</button>
+                    </div>
+                  } @else {
+                    <p class="text-sm font-medium truncate">{{ photo.title }}</p>
+                    <p class="text-xs opacity-50 truncate">{{ photo.category ?? 'Uncategorized' }}</p>
+                    <div class="flex items-center gap-2 mt-3">
+                      <!-- Edit -->
+                      <button
+                        (click)="startEditing(photo)"
+                        title="Edit photo"
+                        class="glass-button p-1.5 rounded-lg transition-transform hover:scale-110"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                        </svg>
+                      </button>
+                      <!-- Featured toggle -->
+                      <button
+                        (click)="toggleFeatured(photo)"
+                        [title]="photo.isFeatured ? 'Remove from featured' : 'Mark as featured'"
+                        class="glass-button p-1.5 rounded-lg transition-transform hover:scale-110"
+                        [class.text-yellow-500]="photo.isFeatured"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24"
+                          [attr.fill]="photo.isFeatured ? 'currentColor' : 'none'"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      </button>
+                      <!-- Delete -->
+                      <button
+                        (click)="deletePhoto(photo.id)"
+                        title="Delete photo"
+                        class="glass-button p-1.5 rounded-lg transition-transform hover:scale-110 text-red-500"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                        </svg>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── Submissions tab ── -->
+    @if (activeTab() === 'submissions') {
+      <div class="flex flex-col gap-4">
+        @if (submissions().length === 0) {
+          <div class="text-center opacity-50 py-24">No submissions yet.</div>
+        } @else {
+          @for (sub of submissions(); track sub.id) {
+            <div class="glass-card p-6 rounded-3xl" [class.opacity-60]="sub.isRead">
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    @if (!sub.isRead) {
+                      <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
+                    }
+                    <p class="font-medium">{{ sub.name }}</p>
+                    <span class="text-xs opacity-50">·</span>
+                    <p class="text-sm opacity-60 truncate">{{ sub.email }}</p>
+                  </div>
+                  <p class="text-sm font-medium opacity-70 mb-2">{{ sub.subject }}</p>
+                  <p class="text-sm opacity-60 leading-relaxed">{{ sub.message }}</p>
+                  <p class="text-xs opacity-40 mt-3">{{ sub.createdAt | date:'medium' }}</p>
+                </div>
+                @if (!sub.isRead) {
+                  <button
+                    (click)="markAsRead(sub.id)"
+                    class="glass-button shrink-0 px-3 py-1.5 rounded-full text-xs transition-transform hover:scale-105"
+                  >
+                    Mark read
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <!-- ── Settings tab ── -->
+    @if (activeTab() === 'settings') {
+      <div class="max-w-xl">
+        <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="glass-card p-8 rounded-3xl flex flex-col gap-5">
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm opacity-70">Site Title</label>
+            <input
+              formControlName="siteTitle"
+              type="text"
+              class="glass-card px-4 py-3 rounded-xl outline-none bg-transparent"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm opacity-70">Site Description</label>
+            <textarea
+              formControlName="siteDescription"
+              rows="3"
+              class="glass-card px-4 py-3 rounded-xl outline-none bg-transparent resize-none"
+            ></textarea>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm opacity-70">Contact Email</label>
+            <input
+              formControlName="contactEmail"
+              type="email"
+              class="glass-card px-4 py-3 rounded-xl outline-none bg-transparent"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm opacity-70">Social Link</label>
+            <input
+              formControlName="socialLink"
+              type="url"
+              class="glass-card px-4 py-3 rounded-xl outline-none bg-transparent"
+            />
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="settingsForm.invalid || settingsSaving()"
+            class="glass-button py-3 rounded-xl font-medium transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            @if (settingsSaving()) { Saving... }
+            @else if (settingsSaved()) { Saved ✓ }
+            @else { Save Settings }
+          </button>
+
+        </form>
+      </div>
+    }
+
+  </main>
+</div>

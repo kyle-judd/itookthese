@@ -1,0 +1,57 @@
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+
+  <!-- Gradient orbs -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="animate-orb-1 absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-gradient-to-br from-blue-400/30 to-purple-400/30 blur-3xl"></div>
+    <div class="animate-orb-2 absolute bottom-1/4 -right-32 w-96 h-96 rounded-full bg-gradient-to-br from-pink-400/30 to-orange-400/30 blur-3xl"></div>
+  </div>
+
+  <div class="relative z-10 max-w-5xl mx-auto px-6 text-center">
+
+    <!-- Camera icon -->
+    <div class="animate-scale-in mb-8 inline-block">
+      <div class="glass-card p-4 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+          <circle cx="12" cy="13" r="3"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Headline -->
+    <h2 class="animate-fade-up animate-fade-up-delay-2 text-5xl md:text-7xl mb-6 tracking-tight font-medium">
+      Capturing Moments
+      <br />
+      <span class="gradient-text">Through the Lens</span>
+    </h2>
+
+    <!-- Subtext -->
+    <p class="animate-fade-up animate-fade-up-delay-3 text-lg md:text-xl opacity-70 mb-12 max-w-2xl mx-auto">
+      Exploring the world with an iPhone camera, one frame at a time.
+      A personal collection of moments that tell stories.
+    </p>
+
+    <!-- CTA -->
+    <button
+      (click)="scrollToGallery()"
+      class="animate-fade-up animate-fade-up-delay-4 glass-button inline-flex items-center gap-2 px-8 py-4 rounded-full transition-transform hover:scale-105 active:scale-95"
+    >
+      View Gallery
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m6 9 6 6 6-6"/>
+      </svg>
+    </button>
+
+  </div>
+
+  <!-- Bouncing chevron -->
+  <div class="animate-bounce-slow absolute bottom-8 left-1/2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 opacity-50" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m6 9 6 6 6-6"/>
+    </svg>
+  </div>
+
+</section>
