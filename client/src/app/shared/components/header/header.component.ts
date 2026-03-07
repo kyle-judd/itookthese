@@ -12,4 +12,12 @@ import { AuthService } from '../../../core/services/auth.service';
 export class HeaderComponent {
   readonly themeService = inject(ThemeService);
   readonly authService = inject(AuthService);
+
+  scrollTo(id: string, event: Event): void {
+    event.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 }

@@ -3,14 +3,14 @@
   <main>
     <app-hero />
     <div id="gallery">
-      @defer (on viewport) {
+      @defer (on viewport; on timer(500ms)) {
         <app-gallery />
       } @placeholder {
         <div class="py-24"></div>
       }
     </div>
     <div id="about">
-      @defer (on viewport) {
+      @defer (on viewport; on timer(1s)) {
         <app-about />
       } @placeholder {
         <div class="py-24"></div>
