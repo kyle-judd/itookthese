@@ -1,0 +1,66 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  test-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Run API tests
+        run: cd api && mvn test -q
+
+  test-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+      - name: Install dependencies
+        run: cd client && npm ci
+      - name: Run client tests
+        run: cd client && npx ng test --watch=false --browsers=ChromeHeadless
+
+  deploy:
+    needs: [test-api, test-client]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Deploy to server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+
+          rsync -az --delete \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            --exclude '.env' \
+            --exclude 'target' \
+            --exclude '.idea' \
+            --exclude '.DS_Store' \
+            -e ssh \
+            ./ root@$SERVER_IP:/opt/itookthese/
+
+          ssh root@$SERVER_IP "cd /opt/itookthese && \
+            docker compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true && \
+            docker compose -f docker-compose.prod.yml build --no-cache && \
+            docker compose -f docker-compose.prod.yml up -d"
