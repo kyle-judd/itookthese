@@ -9,11 +9,13 @@
         <div class="py-24"></div>
       }
     </div>
-    @defer (on viewport) {
-      <app-about />
-    } @placeholder {
-      <div class="py-24"></div>
-    }
+    <div id="about">
+      @defer (on viewport) {
+        <app-about />
+      } @placeholder {
+        <div class="py-24"></div>
+      }
+    </div>
   </main>
   <app-footer (openContact)="showContact.set(true)" />
 </div>
