@@ -56,8 +56,8 @@ public class SiteSettingService {
   private String getValue(List<SiteSetting> settings, SiteSettingKey key) {
     return settings.stream()
         .filter(s -> key.getKey().equals(s.getKey()))
-        .map(SiteSetting::getValue)
         .findFirst()
+        .map(SiteSetting::getValue)
         .orElse(null);
   }
 }
