@@ -7,4 +7,4 @@ RUN mvn package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 COPY --from=build /api/target/*.jar app.jar
-CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-Xmx512m", "-jar", "app.jar"]
