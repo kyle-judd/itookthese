@@ -30,6 +30,10 @@ export class GalleryComponent {
         const photo = photos.find(p => p.id === Number(savedId));
         if (photo) {
           this.selectedPhoto.set(photo);
+          setTimeout(() => {
+            const card = document.querySelector(`[data-photo-id="${photo.id}"]`);
+            card?.scrollIntoView({ block: 'center' });
+          });
         }
       }
     });

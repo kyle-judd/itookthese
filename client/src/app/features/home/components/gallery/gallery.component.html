@@ -15,7 +15,7 @@
     } @else {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @for (photo of photos(); track photo.id; let i = $index) {
-          <div appInView [delay]="i * 100" class="scroll-reveal">
+          <div appInView [delay]="i * 100" class="scroll-reveal" [attr.data-photo-id]="photo.id">
             <app-photo-card
               [photo]="photo"
               (photoSelected)="openModal($event)"
