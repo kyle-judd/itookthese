@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PhotoDetailComponent } from './photo-detail.component';
 import { PhotoService } from '../../core/services/photo.service';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { Location } from '@angular/common';
 import { of, Subject } from 'rxjs';
 import { Photo } from '../../core/models/photo.model';
 import { Component } from '@angular/core';
@@ -43,20 +44,19 @@ describe('PhotoDetailComponent', () => {
   let component: PhotoDetailComponent;
   let fixture: ComponentFixture<PhotoDetailComponent>;
   let mockPhotoService: jasmine.SpyObj<PhotoService>;
-  let mockRouter: jasmine.SpyObj<Router>;
+  let mockLocation: jasmine.SpyObj<Location>;
 
   beforeEach(async () => {
     mockPhotoService = jasmine.createSpyObj('PhotoService', ['getPhoto']);
     mockPhotoService.getPhoto.and.returnValue(of(mockPhoto));
 
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockRouter.navigate.and.returnValue(Promise.resolve(true));
+    mockLocation = jasmine.createSpyObj('Location', ['back']);
 
     await TestBed.configureTestingModule({
       imports: [PhotoDetailComponent],
       providers: [
         { provide: PhotoService, useValue: mockPhotoService },
-        { provide: Router, useValue: mockRouter },
+        { provide: Location, useValue: mockLocation },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -129,9 +129,9 @@ describe('PhotoDetailComponent', () => {
     expect(backBtn?.textContent).toContain('Back to Gallery');
   });
 
-  it('should navigate to home when goBack is called', () => {
+  it('should navigate back when goBack is called', () => {
     component.goBack();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
+    expect(mockLocation.back).toHaveBeenCalled();
   });
 
   it('should show loading state when photo is not yet loaded', () => {

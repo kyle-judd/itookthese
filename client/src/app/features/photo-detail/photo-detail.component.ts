@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { switchMap } from 'rxjs';
@@ -14,7 +15,7 @@ import { HeaderComponent } from '../../shared/components/header/header.component
 })
 export class PhotoDetailComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly photoService = inject(PhotoService);
 
   photo = toSignal(
@@ -24,6 +25,6 @@ export class PhotoDetailComponent {
   );
 
   goBack(): void {
-    this.router.navigate(['/']);
+    this.location.back();
   }
 }
