@@ -68,6 +68,7 @@
       </div>
       <a
         [routerLink]="['/photo', photo().id]"
+        (click)="saveSelection()"
         class="glass-button shrink-0 inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm transition-transform hover:scale-105 active:scale-95"
       >
         View details

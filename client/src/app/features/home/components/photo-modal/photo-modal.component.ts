@@ -1,4 +1,4 @@
-import { Component, computed, HostListener, input, output, signal } from '@angular/core';
+import { Component, computed, HostListener, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Photo } from '../../../../core/models/photo.model';
 
@@ -63,5 +63,9 @@ export class PhotoModalComponent {
     if (idx < list.length - 1) {
       this.photoChanged.emit(list[idx + 1]);
     }
+  }
+
+  saveSelection(): void {
+    sessionStorage.setItem('gallery-selected-photo', String(this.photo().id));
   }
 }
